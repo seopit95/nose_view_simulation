@@ -1,10 +1,10 @@
 # Git 저장소 이전과 기능별 최초 등록
 
-- 상태: blocked — GitHub 쓰기 인증 대기, 파일 이전과 로컬 커밋은 완료
+- 상태: completed — 파일 이전·기능별 커밋·GitHub 반영 완료. 의존성 보안 보완은 K-10으로 남김
 - 시작일 / 마지막 갱신일: 2026-10-22, Asia/Seoul
 - 승인: 사용자가 기존 NoseView 작업물의 이전, 기능별 커밋, GitHub 푸시와 새 폴더에서의 후속 작업을 명시적으로 요청했다.
 - 원본: `/Users/kds_mac/PhpstormProjects/NoseView`, Git 이력 없음.
-- 작업 루트: `/Users/kds_mac/PhpstormProjects/nose_view_simulation`, 빈 `main` 저장소.
+- 작업 루트: `/Users/kds_mac/PhpstormProjects/nose_view_simulation`. 이관 시작 시 빈 `main` 저장소였으며 현재 GitHub와 연결되어 있다.
 - 원격: `https://github.com/seopit95/nose_view_simulation.git`.
 
 ## 목표와 범위
@@ -29,7 +29,7 @@ AGENTS, workflow, quality, privacy-release, status, task-template와 빌드·패
 - [x] 추적 후보 파일·크기·민감정보 제외·상대 경로 참조 검토: 105파일/약30MB, 제외 디렉터리·심볼릭 링크·100MB 초과 파일·주요 인증정보 패턴 없음.
 - [x] 새 루트에서 `npm run verify`를 순차 실행하고 현재 패키지/ZIP의 무결성 확인. 아래 audit 실패를 포함해 결과를 기록했으며 전체 통과를 뜻하지 않는다.
 - [x] 아래 기능별 파일 경계로8개 커밋하고 staged diff와 포함 파일 확인. 서드파티 라이선스 원문을 제외한 staged diff whitespace 검사 통과.
-- [ ] `git push -u origin main` 후 로컬/원격 HEAD 및 작업 트리 확인.
+- [x] 사용자가 인증된 PhpStorm에서 Push를 실행한 뒤 `git ls-remote origin refs/heads/main`, `git rev-parse HEAD`, `git rev-parse origin/main`의 동일 SHA를 확인. 당시 작업 트리도 깨끗함.
 
 ## 최초 커밋 경계
 
@@ -52,9 +52,10 @@ AGENTS, workflow, quality, privacy-release, status, task-template와 빌드·패
 - 패키지/ZIP 추가 검사: 종료0. 소스·ASAR·보고서13개의 경로/해시/시각 일치, ZIP CRC·ASAR 사본·모델 SHA·WASM·고지/라이선스·버전·시험용 자산 제외·아이콘 원본 일치 확인.
 - 검수용 일회성 ZIP 검사에서 아이콘 이름을 app.icns로 가정해 최초 종료1. 실제 주 앱 Info.plist의 CFBundleIconFile은 electron.icns였다. 그 경로의 바이트와 원본 app-icon.icns 일치를 확인해 종료0. 제품 소스나 판정 기준은 바꾸지 않았다.
 - 근거: [verification.json](../../../outputs/repository-migration-2026-10-22/verification.json), [verify.log](../../../outputs/repository-migration-2026-10-22/verify.log), [audit.json](../../../outputs/repository-migration-2026-10-22/audit.json). 이 파일들은 로컬 전용이다.
-- `git push -u origin main`: 종료128, `could not read Username for 'https://github.com': Device not configured`. HTTPS credential helper는 osxkeychain이지만 사용 가능한 GitHub 자격 증명을 받지 못했다. gh 명령은 설치되어 있지 않다.
+- 초기 명령줄 `git push -u origin main`: 종료128, `could not read Username for 'https://github.com': Device not configured`. HTTPS credential helper는 osxkeychain이지만 사용 가능한 GitHub 자격 증명을 받지 못했다. gh 명령은 설치되어 있지 않다.
 - SSH 대체 경로의 읽기 전용 인증 확인: `Permission denied (publickey)`, 종료255. 원격 URL이나 전역 인증 설정은 변경하지 않았다. PhpStorm UI에서도 이번 세션에 사용 가능한 인증을 확인하지 못했다.
-- GitHub 푸시와 원격 SHA 일치는 미완료다. 사용자가 이 Mac에서 GitHub 쓰기 인증을 완료하면 동일 커밋을 일반 push한다. 강제 push, 새 계정·토큰·키 생성, 인증정보 추출은 수행하지 않았다.
+- 인증 후 사용자가 PhpStorm에서 Push를 실행했다. 기능별8개 커밋의 로컬 HEAD·origin/main·GitHub main이 모두 `ff759883d81a9bfe2af51069630088f05fa4260c`로 일치함을 명령 종료0으로 확인했다. 강제 push, 새 계정·토큰·키 생성, 인증정보 추출은 수행하지 않았다.
+- PhpStorm 인증은 명령줄 credential helper와 별개다. 이후 `git push --dry-run origin main`도 인증 오류로 종료128이었다. 이 환경에서는 인증된 PhpStorm을 사용하며, 명령줄 인증이 필요한 작업에서는 기존 성공을 그대로 가정하지 않는다.
 
 ## 리뷰와 인수인계
 
@@ -64,4 +65,4 @@ AGENTS, workflow, quality, privacy-release, status, task-template와 빌드·패
 
 로컬 커밋: `6b7e8be` 빌드, `b603921` 코 윤곽, `7636aeb` 추적, `ecccd89` 촬영 보정, `84e9c93` 설정, `90c4745` 권한/PNG, `fb9b4cb` 상담 UI와 문서 이관 커밋. 전체 목록은 `git log --oneline --reverse`로 확인한다.
 
-다음 한 단계: 인증이 준비되면 새 루트에서 `git push -u origin main` → `git ls-remote origin refs/heads/main`과 `git rev-parse HEAD` 일치 확인 → 상태를 완료로 갱신하고 문서 커밋도 푸시한다. 사용자 입력 대기: GitHub 쓰기 인증 완료. 실제 USB 첫 프레임 수신, 실물 측면/미관, Windows/Intel Mac, 장시간·상용 배포 검증은 이번 이전 범위 밖이며 기존 미확인 상태를 유지한다.
+완료일: 2026-10-22. 이후 작업은 새 루트에서 이어간다. 별도 후속 후보는 K-10 의존성 보안 보완이다. 실제 USB 첫 프레임 수신, 실물 측면/미관, Windows/Intel Mac, 장시간·상용 배포 검증은 이번 이전 범위 밖이며 기존 미확인 상태를 유지한다.
